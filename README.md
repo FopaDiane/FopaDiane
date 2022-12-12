@@ -1,7 +1,7 @@
 - 👋 Hi, I’m @FopaDiane
 - 👀 I’m interested in solving problems in my daily life
 - 🌱 I’m currently learning data analytic
-- 💞️ I’m looking to collaborate on Data Dnalytic, Science and Specialist
+- 💞️ I’m looking to collaborate on Data Analytic, Science and Specialist
 - 📫 How to reach me : 
 URL platform
 https://www.linkedin.com/in/diane-fopa/
