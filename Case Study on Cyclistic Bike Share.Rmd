@@ -1,0 +1,337 @@
+---
+title: "Case Study On Cyclistic Bike Share"
+author: "Diane KENGNE"
+date: "2022-11-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction
+
+You are a junior data analyst working in the marketing analyst team at Cyclistic, a bike-share company in Chicago. The director of marketing believes the company’s future success depends on maximizing the number of annual memberships. Therefore,
+your team wants to understand how casual riders and annual members use Cyclistic bikes differently. From these insights, your team will design a new marketing strategy to convert casual riders into annual members. But first, Cyclistic executives must approve your recommendations, so they must be backed up with compelling data insights and professional data visualizations
+
+### Goal
+
+Design marketing strategies aimed at converting casual riders into annual members. In order to do that, however, the marketing analyst team needs to better understand how annual members and casual riders differ, why casual riders would buy a membership, and how digital media could affect their marketing tactics. Moreno and her team are interested in analyzing the Cyclistic historical bike trip data to identify trends.
+
+Moreno is The director of marketing and your manager and is responsible for the development of campaigns and initiatives to promote the bike-share program
+
+
+I will produce a report with the following deliverables:
+1. A clear statement of the business task
+2. A description of all data sources used
+3. Documentation of any cleaning or manipulation of data
+4. A summary of your analysis
+5. Supporting visualizations and key findings
+6. Your top three recommendations based on your analysis
+
+
+### Business Task
+
+Maximize the number of annual members by converting casual riders to members.
+
+
+## Preparing, cleaning and manipulation of data 
+
+install packages
+```{r }
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+install.packages("janitor", repos = "http://cran.us.r-project.org")
+install.packages("dplyr" , repos = "http://cran.us.r-project.org")
+install.packages("skimr", repos = "http://cran.us.r-project.org")
+install.packages("readr", repos = "http://cran.us.r-project.org")
+```
+
+Load packages
+```{r }
+library(tidyverse)
+library(skimr)
+library(janitor)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+```
+
+
+Import, read and rename .csv.files
+```{r }
+jan_2021 <- read_csv("202101-divvy-tripdata.csv")
+fev_2021 <- read_csv("202102-divvy-tripdata.csv")
+mar_2021 <- read_csv("202103-divvy-tripdata.csv")
+apr_2021 <- read_csv("202104-divvy-tripdata.csv")
+may_2021 <- read_csv("202105-divvy-tripdata.csv")
+jun_2021 <- read_csv("202106-divvy-tripdata.csv")
+jul_2021 <- read_csv("202107-divvy-tripdata.csv")
+aug_2021 <- read_csv("202108-divvy-tripdata.csv")
+sept_2021 <- read_csv("202109-divvy-tripdata.csv")
+oct_2021 <- read_csv("202110-divvy-tripdata.csv")
+nov_2021 <- read_csv("202111-divvy-tripdata.csv")
+dec_2021 <- read_csv("202112-divvy-tripdata.csv")
+```
+
+Checking datasets for consistency
+```{r}
+head(jan_2021)
+head(fev_2021)
+head(mar_2021)
+head(apr_2021)
+head(may_2021)
+head(jun_2021)
+head(jul_2021)
+head(aug_2021)
+head(sept_2021)
+head(oct_2021)
+head(nov_2021)
+head(dec_2021)
+```
+
+```{r}
+glimpse(jan_2021)
+glimpse(fev_2021)
+glimpse(mar_2021)
+glimpse(apr_2021)
+glimpse(may_2021)
+glimpse(jun_2021)
+glimpse(jul_2021)
+glimpse(aug_2021)
+glimpse(sept_2021)
+glimpse(oct_2021)
+glimpse(nov_2021)
+glimpse(dec_2021)
+```
+
+```{r}
+colnames(jan_2021)
+colnames(fev_2021)
+colnames(mar_2021)
+colnames(may_2021)
+colnames(jun_2021)
+colnames(jul_2021)
+colnames(aug_2021)
+colnames(sept_2021)
+colnames(oct_2021)
+colnames(nov_2021)
+colnames(dec_2021)
+```
+
+
+
+I need to merge my csv.files
+
+Before merging my csv.files i added two columns in each spreadsheet for ride_length and day_of_week (i did this work in my spreadsheet)
+
+```{r}
+annual_tripdata <- rbind.data.frame(jan_2021, fev_2021, mar_2021, apr_2021, may_2021, jun_2021, jul_2021, aug_2021, sept_2021, oct_2021, nov_2021, dec_2021)
+```
+```{r}
+rm(jan_2021, fev_2021, mar_2021, apr_2021, may_2021, jun_2021, jul_2021, aug_2021, sept_2021, oct_2021, nov_2021, dec_2021)
+```
+
+Replace each value in column day_of_week by the corresponding day of the week
+```{r}
+annual_tripdata$day_of_week[annual_tripdata$day_of_week==1]<- "Sunday"
+annual_tripdata$day_of_week[annual_tripdata$day_of_week==2]<- "Monday"
+annual_tripdata$day_of_week[annual_tripdata$day_of_week==3]<- "Tuesday"
+annual_tripdata$day_of_week[annual_tripdata$day_of_week==4]<- "Wednesday"
+annual_tripdata$day_of_week[annual_tripdata$day_of_week==5]<- "Thursday"
+annual_tripdata$day_of_week[annual_tripdata$day_of_week==6]<- "Friday"
+annual_tripdata$day_of_week[annual_tripdata$day_of_week==7]<- "Saturday"
+```
+
+Checking my new dataframe for consistency
+```{r head annual tripdata}
+head(annual_tripdata)
+```
+```{r}
+glimpse(annual_tripdata)
+```
+```{r}
+colnames(annual_tripdata)
+```
+```{r}
+summary(annual_tripdata)
+```
+
+I will need to add date, day, month and year columns to my new dataframe
+```{r}
+annual_tripdata$date <- as.Date(annual_tripdata$started_at)
+annual_tripdata$day <- format(as.Date(annual_tripdata$date), "%d")
+annual_tripdata$month <- format(as.Date(annual_tripdata$date), "%m")
+annual_tripdata$year <- format(as.Date(annual_tripdata$date), "%Y")
+```
+
+
+Replace each value in  month column by a corresponding month of the year
+```{r}
+annual_tripdata$month[annual_tripdata$month=="01"]<- "January"
+annual_tripdata$month[annual_tripdata$month=="02"]<- "February"
+annual_tripdata$month[annual_tripdata$month=="03"]<- "March"
+annual_tripdata$month[annual_tripdata$month=="04"]<- "April"
+annual_tripdata$month[annual_tripdata$month=="05"]<- "May"
+annual_tripdata$month[annual_tripdata$month=="06"]<- "June"
+annual_tripdata$month[annual_tripdata$month=="07"]<- "July"
+annual_tripdata$month[annual_tripdata$month=="08"]<- "August"
+annual_tripdata$month[annual_tripdata$month=="09"]<- "September"
+```
+```{r}
+annual_tripdata$month[annual_tripdata$month==10]<- "October"
+annual_tripdata$month[annual_tripdata$month==11]<- "November"
+annual_tripdata$month[annual_tripdata$month==12]<- "December"
+```
+
+
+I need to Remove data that are not relevant for my analysis where ride_length is less or equal to 'zero' or ride_length is greater than 'zero'
+```{r}
+annual_tripdata_cleaned <- subset(annual_tripdata, ride_length > 0)
+```
+
+
+
+## Summary of Analysis
+
+#### Compare member riders to casual riders on the yearly usage
+
+First check my cleaned data frame
+```{r}
+head(annual_tripdata_cleaned)
+```
+```{r}
+glimpse(annual_tripdata_cleaned)
+```
+```{r}
+colnames(annual_tripdata_cleaned)
+```
+```{r}
+summary(annual_tripdata_cleaned)
+```
+
+
+Then i will find the yearly average of riders for descriptive analysis, 
+
+#mean is the average of the length of ride through the year
+#median is the middle (midpoint) of the length of ride through the year
+#min is the shortest ride through the year
+#max is the longest of ride through the year
+```{r}
+annual_tripdata_cleaned %>%
+  summarise(average_ride_length = mean(ride_length), median_ride_length = median(ride_length), min_ride_length = min(ride_length), max_ride_length = max(ride_length))
+```
+Here the calculations give me an idea on the usage of both riders through the year.
+
+
+Now I need to make calculation based on the percentage on each rider through the year in order to have a clearer comparison.
+```{r}
+annual_tripdata_cleaned %>% 
+  group_by(member_casual) %>% 
+  summarise(ride_count = length(ride_id), ride_percentage = (length(ride_id) / nrow(annual_tripdata_cleaned)) * 100)
+```
+Here member riders ride more than casual riders through the year
+
+
+Comparison between Member and casual riders on the length of ride through the year
+```{r }
+annual_tripdata_cleaned %>%
+  group_by(member_casual)%>%
+  summarise(average_ride_length = mean(ride_length), median_ride_length = median(ride_length), min_ride_length = min(ride_length), max_ride_length = max(ride_length))
+```
+Here we can see that casual riders ride longer than member riders
+
+
+
+Total of rides by each riders type on each day fo Week through the year
+```{r}
+annual_tripdata_cleaned$day_of_week <- ordered(annual_tripdata_cleaned$day_of_week, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+annual_tripdata_cleaned%>%
+  group_by(member_casual, day_of_week)%>%
+  summarise(number_of_ride = n(), average_ride_length = mean(ride_length),.groups = "drop")%>%
+  arrange(member_casual, day_of_week)
+```
+
+
+Now i will calculate the total rides and average ride time by each month for members and casual riders
+
+```{r}
+annual_tripdata_cleaned$month <- ordered(annual_tripdata_cleaned$month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
+annual_tripdata_cleaned%>%
+  group_by(member_casual, month) %>%  
+  summarise(number_of_rides = n(), average_ride_length = mean(ride_length), .groups="drop") %>% 
+  arrange(member_casual, month)
+```
+
+
+Comparison between Member and casual riders based on the rideable type
+```{r}
+annual_tripdata_cleaned %>%
+  group_by(rideable_type, member_casual) %>% 
+  summarise(count = length(ride_id))
+```
+
+With the classic bike, member riders use more than casual riders, on the other hand casual riders use more docked bike than members(members almost did not use it).
+With electric bike casual riders use less than members .
+
+
+## Sharing my findings by creating visulizations 
+
+
+First lets compare member rider to casual riders through the year based on the percentage of ride
+```{r}
+ggplot(annual_tripdata_cleaned)+
+  geom_bar(mapping = aes(x = member_casual, fill = member_casual))+
+  labs(title = "Comparison: Members Vs Casuals", subtitle = "Year", x = "Member Vs Casual", y = "Number Of Ride")
+```
+
+casual	2528664	45.19983	= ~45%	
+member	3065746	54.80017	= ~55%
+
+Based on the calculation during my analysis phase members ride ~10% more than casuals.
+
+
+Comparison on Number of rides based on monthly ride
+```{r}
+ggplot()+
+  geom_bar(annual_tripdata_cleaned, mapping = aes(x = month, fill = member_casual), position = "dodge", width = 0.5)+
+  labs(title = "Comparison : Member Vs Casual", subtitle = "Month", x = "Month", y = "Number of Rides")
+```
+
+
+The first five months and the last four months members ride more than casuals,
+on the other hand during summer time (June, July and August) casuals ride more than members.
+
+
+Comparison on number of rides based on the day of week
+```{r}
+ggplot()+
+  geom_bar(annual_tripdata_cleaned, mapping = aes(x = day_of_week, fill = member_casual), position = "dodge", width = 0.5)+
+  labs(title = "Comparison : Member Vs Casual", subtitle = "Day Of Week", x = "Day Of Week", y = "Number of Rides")
+```
+
+Members ride more than casuals during week day, while casuals ride more than members during the week end.
+
+
+Comparison on rideable type between Member and Casual
+```{r}
+ggplot()+
+  geom_bar(annual_tripdata_cleaned, mapping = aes(x = rideable_type, fill = member_casual), position = "dodge", width = 0.5)+
+  labs(title = "Comparison : Member Vs Casual", subtitle = "Rideable Type", x = "Rideable Type", y = "Number of Rides")
+```
+
+Members use more classic and electric bike than casuals, while casuals use more docked bike than members.
+
+
+In the conclusion, casual riders use bikes more in the summer and the week than member, but based of the different visualizations, casual riders also use bike; so they need bike daily for their rides.
+
+
+## My recommendations
+
+1 - Create an annual month promotions for new members specially for casual riders
+
+2 - Create seasonal promotions for new members like weekly promotions 
+
+3- Have visual or physical marketing promotions during the week end and summer time on each station so it will draw the attention of casual riders.
